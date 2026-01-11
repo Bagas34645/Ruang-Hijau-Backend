@@ -13,7 +13,7 @@ if not exist ".env" (
 
 :: Set environment variables for external access
 set SERVER_HOST=0.0.0.0
-set FLASK_DEBUG=True
+set FLASK_DEBUG=False
 
 echo [INFO] Menyalakan server Flask...
 echo [INFO] Server akan berjalan di http://0.0.0.0:5000 (Semua Interface)

@@ -122,9 +122,17 @@ def bad_request(error):
 
 
 if __name__ == "__main__":
+    # Parse debug mode from environment
+    debug_str = str(os.getenv('FLASK_DEBUG', 'True'))
+    debug_mode = debug_str.lower() in ('true', '1', 't')
+    
+    print(f"Server starting on {os.getenv('SERVER_HOST', '0.0.0.0')}:{os.getenv('SERVER_PORT', 5000)}")
+    print(f"Debug Mode: {debug_mode}")
+
     app.run(
         host=os.getenv('SERVER_HOST', '0.0.0.0'),
         port=int(os.getenv('SERVER_PORT', 5000)),
-        debug=os.getenv('FLASK_DEBUG', True),
+        debug=debug_mode,
+        use_reloader=debug_mode, # Only use reloader if debug is true
         threaded=True
     )
