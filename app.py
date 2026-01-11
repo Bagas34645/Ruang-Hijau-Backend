@@ -31,6 +31,7 @@ from routes.comment_routes import comment_bp
 from routes.campaign_routes import campaign_bp
 from routes.donation_routes import donation_bp
 from routes.volunteer_routes import volunteer_bp
+from routes.chatbot_routes import chatbot_bp
 
 # Register Blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -40,6 +41,7 @@ app.register_blueprint(event_bp, url_prefix='/api/events')
 app.register_blueprint(campaign_bp, url_prefix='/api/campaigns')
 app.register_blueprint(donation_bp, url_prefix='/api/donations')
 app.register_blueprint(volunteer_bp, url_prefix='/api/volunteers')
+app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
 
 
 @app.route('/uploads/<path:filename>')
@@ -85,7 +87,8 @@ def api_index():
             "events": "/api/events",
             "campaigns": "/api/campaigns",
             "donations": "/api/donations",
-            "volunteers": "/api/volunteers"
+            "volunteers": "/api/volunteers",
+            "chatbot": "/api/chatbot"
         }
     }), 200
 
@@ -120,7 +123,8 @@ def bad_request(error):
 
 if __name__ == "__main__":
     app.run(
-        host=os.getenv('SERVER_HOST', '127.0.0.1'),
+        host=os.getenv('SERVER_HOST', '0.0.0.0'),
         port=int(os.getenv('SERVER_PORT', 5000)),
-        debug=os.getenv('FLASK_DEBUG', True)
+        debug=os.getenv('FLASK_DEBUG', True),
+        threaded=True
     )

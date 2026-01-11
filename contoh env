@@ -92,3 +92,19 @@ API_PREFIX=/api
 # Testing Configuration
 TESTING=False
 DATABASE_URL=mysql+pymysql://root:password@localhost:3306/ruang_hijau
+
+# ============================================================================
+# RAG CHATBOT CONFIGURATION
+# ============================================================================
+# Ollama LLM Settings
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=gemma2:2b
+
+# TiDB Cloud Vector Database (for RAG)
+RAG_DB_HOST=gateway01.eu-central-1.prod.aws.tidbcloud.com
+RAG_DB_PORT=4000
+RAG_DB_USER=mi3fQyPy1G6E9Jx.root
+RAG_DB_PASSWORD=NKFZCVf7VuaM2WFv
+RAG_DB_NAME=RAG
+RAG_SSL_CA=isrgrootx1.pem
+
