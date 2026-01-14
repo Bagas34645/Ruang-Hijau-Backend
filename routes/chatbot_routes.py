@@ -38,10 +38,19 @@ def get_embedder():
     if _embedder is None:
         try:
             from sentence_transformers import SentenceTransformer
+            print("⏳ Loading BAAI/bge-m3 model... (first time may take 5-10 minutes)")
             _embedder = SentenceTransformer('BAAI/bge-m3')
             print("✅ Embedder loaded successfully")
+        except ImportError as e:
+            print(f"❌ Failed to load embedder - Missing package: {e}")
+            print("   Fix: pip install sentence-transformers torch")
+            raise
         except Exception as e:
             print(f"❌ Failed to load embedder: {e}")
+            print("   Common causes:")
+            print("   - Insufficient disk space (model is ~1GB)")
+            print("   - Network issues downloading model")
+            print("   - Insufficient memory")
             raise
     return _embedder
 
@@ -52,10 +61,22 @@ def get_llm_agent():
     if _llm_agent is None:
         try:
             import ollama
+            print(f"⏳ Connecting to Ollama at {OLLAMA_HOST}...")
             _llm_agent = ollama.Client(host=OLLAMA_HOST)
             print(f"✅ LLM Agent connected to {OLLAMA_HOST}")
+        except ModuleNotFoundError as e:
+            print(f"❌ Failed to load ollama package: {e}")
+            print("   Fix: pip install ollama")
+            raise
+        except ConnectionError as e:
+            print(f"❌ Failed to connect to Ollama: {e}")
+            print(f"   - Ollama service is not running at {OLLAMA_HOST}")
+            print("   - Fix: Start Ollama with: ollama serve")
+            print("   - Or set OLLAMA_HOST environment variable correctly")
+            raise
         except Exception as e:
             print(f"❌ Failed to connect to Ollama: {e}")
+            print(f"   Host: {OLLAMA_HOST}")
             raise
     return _llm_agent
 
@@ -70,23 +91,49 @@ def get_rag_db():
                 _db_connection.ping(reconnect=True, attempts=3, delay=2)
                 return _db_connection
             except:
+                print("⚠️  Existing database connection lost, creating new one...")
                 _db_connection = None
         
         # Create new connection
+        print(f"⏳ Connecting to TiDB Cloud at {RAG_DB_HOST}:{RAG_DB_PORT}...")
+        
+        # Check SSL certificate exists
+        if not os.path.exists(RAG_SSL_CA):
+            print(f"⚠️  SSL certificate not found at {RAG_SSL_CA}")
+            print("   Will attempt connection without certificate verification")
+            ssl_ca = None
+            verify_cert = False
+        else:
+            ssl_ca = RAG_SSL_CA
+            verify_cert = True
+        
         _db_connection = mysql.connector.connect(
             host=RAG_DB_HOST,
             port=RAG_DB_PORT,
             user=RAG_DB_USER,
             password=RAG_DB_PASSWORD,
             database=RAG_DB_NAME,
-            ssl_ca=RAG_SSL_CA,
-            ssl_verify_cert=True,
-            ssl_verify_identity=True
+            ssl_ca=ssl_ca,
+            ssl_verify_cert=verify_cert,
+            ssl_verify_identity=False,
+            connection_timeout=10,
+            autocommit=True
         )
         print("✅ RAG Database connected successfully")
         return _db_connection
+        
+    except mysql.connector.Error as e:
+        print(f"❌ Failed to connect to RAG database:")
+        print(f"   Error Code: {e.errno}")
+        print(f"   Error Message: {e.msg}")
+        print(f"   Common causes:")
+        print(f"   - Wrong credentials in .env file")
+        print(f"   - Database offline or unreachable")
+        print(f"   - Network/firewall blocking access")
+        print(f"   - Wrong host/port configuration")
+        raise
     except Exception as e:
-        print(f"❌ Failed to connect to RAG database: {e}")
+        print(f"❌ Failed to connect to RAG database: {type(e).__name__}: {e}")
         raise
 
 
@@ -198,33 +245,66 @@ def chat():
         
         print(f"📨 Chat request from {user_id}: {user_message[:50]}...")
         
-        # Get database connection
-        db = get_rag_db()
+        try:
+            # Get database connection
+            print("   [1/3] Connecting to database...")
+            db = get_rag_db()
+            
+            # Generate response using RAG
+            print("   [2/3] Generating response using RAG...")
+            bot_response = generate_response(db, user_message)
+            
+            print(f"   [3/3] ✅ Response generated: {bot_response[:50]}...")
+            
+            return jsonify({
+                "success": True,
+                "response": bot_response,
+                "user_id": user_id
+            }), 200
         
-        # Generate response using RAG
-        bot_response = generate_response(db, user_message)
+        except ImportError as e:
+            print(f"❌ Missing required package: {e}")
+            print("   Fix: pip install -r requirements.txt")
+            return jsonify({
+                "success": False,
+                "error": "Missing required dependency",
+                "message": str(e),
+                "fix": "pip install -r requirements.txt"
+            }), 503
         
-        print(f"🤖 Bot response generated: {bot_response[:50]}...")
+        except ConnectionError as e:
+            print(f"❌ Connection error (Ollama not running?): {e}")
+            return jsonify({
+                "success": False,
+                "error": "LLM Service unavailable",
+                "message": "Ollama service is not running. Start with: ollama serve"
+            }), 503
         
-        return jsonify({
-            "success": True,
-            "response": bot_response,
-            "user_id": user_id
-        }), 200
+        except mysql.connector.Error as db_err:
+            print(f"❌ Database error: {db_err}")
+            return jsonify({
+                "success": False,
+                "error": "Database connection error",
+                "message": str(db_err)
+            }), 503
         
-    except mysql.connector.Error as db_err:
-        print(f"❌ Database error: {db_err}")
-        return jsonify({
-            "success": False,
-            "error": "Database connection error",
-            "message": str(db_err)
-        }), 503
+        except Exception as e:
+            print(f"❌ Error generating response: {type(e).__name__}: {e}")
+            import traceback
+            traceback.print_exc()
+            return jsonify({
+                "success": False,
+                "error": "Failed to process chat request",
+                "message": str(e)
+            }), 500
         
     except Exception as e:
-        print(f"❌ Chat error: {e}")
+        print(f"❌ Critical chat error: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             "success": False,
-            "error": "Failed to process chat request",
+            "error": "Internal server error",
             "message": str(e)
         }), 500
 
