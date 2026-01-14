@@ -7,6 +7,8 @@ from flask import Blueprint, request, jsonify
 import mysql.connector
 import json
 import os
+import traceback
+import datetime
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -18,6 +20,8 @@ chatbot_bp = Blueprint('chatbot', __name__)
 _embedder = None
 _llm_agent = None
 _db_connection = None
+_embedder_error = None
+_llm_error = None
 
 # Configuration from environment or defaults
 OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://localhost:11434')
@@ -34,50 +38,59 @@ RAG_SSL_CA = os.getenv('RAG_SSL_CA', os.path.join(os.path.dirname(__file__), '..
 
 def get_embedder():
     """Lazy load the sentence transformer embedder"""
-    global _embedder
+    global _embedder, _embedder_error
     if _embedder is None:
+        if _embedder_error is not None:
+            # Already tried and failed, don't retry
+            raise RuntimeError(_embedder_error)
+        
         try:
             from sentence_transformers import SentenceTransformer
             print("⏳ Loading BAAI/bge-m3 model... (first time may take 5-10 minutes)")
             _embedder = SentenceTransformer('BAAI/bge-m3')
             print("✅ Embedder loaded successfully")
         except ImportError as e:
-            print(f"❌ Failed to load embedder - Missing package: {e}")
-            print("   Fix: pip install sentence-transformers torch")
-            raise
+            error_msg = f"Missing package: {e}. Fix: pip install sentence-transformers torch"
+            _embedder_error = error_msg
+            print(f"❌ Failed to load embedder - {error_msg}")
+            raise RuntimeError(error_msg)
         except Exception as e:
-            print(f"❌ Failed to load embedder: {e}")
-            print("   Common causes:")
-            print("   - Insufficient disk space (model is ~1GB)")
-            print("   - Network issues downloading model")
-            print("   - Insufficient memory")
-            raise
+            error_msg = f"Failed to load embedder: {e}"
+            _embedder_error = error_msg
+            print(f"❌ {error_msg}")
+            raise RuntimeError(error_msg)
     return _embedder
 
 
 def get_llm_agent():
     """Lazy load the Ollama LLM client"""
-    global _llm_agent
+    global _llm_agent, _llm_error
     if _llm_agent is None:
+        if _llm_error is not None:
+            # Already tried and failed, don't retry
+            raise RuntimeError(_llm_error)
+        
         try:
             import ollama
             print(f"⏳ Connecting to Ollama at {OLLAMA_HOST}...")
             _llm_agent = ollama.Client(host=OLLAMA_HOST)
+            # Test connection
             print(f"✅ LLM Agent connected to {OLLAMA_HOST}")
         except ModuleNotFoundError as e:
-            print(f"❌ Failed to load ollama package: {e}")
-            print("   Fix: pip install ollama")
-            raise
+            error_msg = f"Missing ollama package: {e}. Fix: pip install ollama"
+            _llm_error = error_msg
+            print(f"❌ {error_msg}")
+            raise RuntimeError(error_msg)
         except ConnectionError as e:
-            print(f"❌ Failed to connect to Ollama: {e}")
-            print(f"   - Ollama service is not running at {OLLAMA_HOST}")
-            print("   - Fix: Start Ollama with: ollama serve")
-            print("   - Or set OLLAMA_HOST environment variable correctly")
-            raise
+            error_msg = f"Failed to connect to Ollama at {OLLAMA_HOST}. Make sure: 1) ollama serve is running, 2) OLLAMA_HOST is correct"
+            _llm_error = error_msg
+            print(f"❌ {error_msg}")
+            raise RuntimeError(error_msg)
         except Exception as e:
-            print(f"❌ Failed to connect to Ollama: {e}")
-            print(f"   Host: {OLLAMA_HOST}")
-            raise
+            error_msg = f"Failed to connect to Ollama: {type(e).__name__}: {e}"
+            _llm_error = error_msg
+            print(f"❌ {error_msg}")
+            raise RuntimeError(error_msg)
     return _llm_agent
 
 
@@ -243,18 +256,19 @@ def chat():
                 "error": "Message is required"
             }), 400
         
-        print(f"📨 Chat request from {user_id}: {user_message[:50]}...")
+        print(f"\n📨 Chat request from {user_id}: {user_message[:50]}...")
         
         try:
             # Get database connection
-            print("   [1/3] Connecting to database...")
+            print("   [1/4] Connecting to database...")
             db = get_rag_db()
             
             # Generate response using RAG
-            print("   [2/3] Generating response using RAG...")
+            print("   [2/4] Generating response using RAG...")
             bot_response = generate_response(db, user_message)
             
-            print(f"   [3/3] ✅ Response generated: {bot_response[:50]}...")
+            print(f"   [3/4] ✅ Response generated")
+            print(f"   [4/4] Sending response to client...")
             
             return jsonify({
                 "success": True,
@@ -262,45 +276,54 @@ def chat():
                 "user_id": user_id
             }), 200
         
-        except ImportError as e:
-            print(f"❌ Missing required package: {e}")
-            print("   Fix: pip install -r requirements.txt")
-            return jsonify({
-                "success": False,
-                "error": "Missing required dependency",
-                "message": str(e),
-                "fix": "pip install -r requirements.txt"
-            }), 503
-        
-        except ConnectionError as e:
-            print(f"❌ Connection error (Ollama not running?): {e}")
-            return jsonify({
-                "success": False,
-                "error": "LLM Service unavailable",
-                "message": "Ollama service is not running. Start with: ollama serve"
-            }), 503
+        except RuntimeError as e:
+            # This is from our lazy loading functions
+            error_msg = str(e)
+            print(f"❌ Runtime error: {error_msg}")
+            
+            # Provide helpful error info
+            if "Ollama" in error_msg:
+                return jsonify({
+                    "success": False,
+                    "error": "Ollama service not available",
+                    "message": error_msg,
+                    "hint": "Make sure ollama serve is running on the correct host"
+                }), 503
+            elif "Missing" in error_msg or "package" in error_msg:
+                return jsonify({
+                    "success": False,
+                    "error": "Missing dependencies",
+                    "message": error_msg,
+                    "hint": "Run: pip install -r requirements.txt"
+                }), 503
+            else:
+                return jsonify({
+                    "success": False,
+                    "error": "Service error",
+                    "message": error_msg
+                }), 503
         
         except mysql.connector.Error as db_err:
             print(f"❌ Database error: {db_err}")
             return jsonify({
                 "success": False,
                 "error": "Database connection error",
-                "message": str(db_err)
+                "message": str(db_err),
+                "hint": "Check RAG database configuration in .env"
             }), 503
         
         except Exception as e:
-            print(f"❌ Error generating response: {type(e).__name__}: {e}")
-            import traceback
+            print(f"❌ Unexpected error: {type(e).__name__}: {e}")
             traceback.print_exc()
             return jsonify({
                 "success": False,
                 "error": "Failed to process chat request",
-                "message": str(e)
+                "message": str(e),
+                "type": type(e).__name__
             }), 500
         
     except Exception as e:
         print(f"❌ Critical chat error: {type(e).__name__}: {e}")
-        import traceback
         traceback.print_exc()
         return jsonify({
             "success": False,
@@ -319,34 +342,105 @@ def health_check():
         "rag_database": "unknown"
     }
     
+    # Test embedder
     try:
-        # Test embedder
         get_embedder()
         status["embedder"] = "healthy"
     except Exception as e:
         status["embedder"] = f"error: {str(e)}"
+        print(f"Embedder check failed: {e}")
     
+    # Test LLM connection
     try:
-        # Test LLM connection
         get_llm_agent()
         status["llm"] = "healthy"
     except Exception as e:
         status["llm"] = f"error: {str(e)}"
+        print(f"LLM check failed: {e}")
     
+    # Test database connection
     try:
-        # Test database connection
         db = get_rag_db()
         db.ping()
         status["rag_database"] = "healthy"
     except Exception as e:
         status["rag_database"] = f"error: {str(e)}"
+        print(f"Database check failed: {e}")
     
     all_healthy = all(v == "healthy" for k, v in status.items() if k != "chatbot")
     
     return jsonify({
         "success": all_healthy,
-        "status": status
+        "status": status,
+        "timestamp": datetime.datetime.now().isoformat()
     }), 200 if all_healthy else 503
+
+
+@chatbot_bp.route('/diagnose', methods=['GET'])
+def diagnose():
+    """Detailed diagnostic information for troubleshooting"""
+    diagnosis = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "components": {},
+        "configuration": {}
+    }
+    
+    # Configuration info (redacted for security)
+    diagnosis["configuration"] = {
+        "ollama_host": OLLAMA_HOST,
+        "ollama_model": OLLAMA_MODEL,
+        "rag_db_host": RAG_DB_HOST,
+        "rag_db_port": RAG_DB_PORT,
+        "rag_db_name": RAG_DB_NAME,
+        "ssl_cert_exists": os.path.exists(RAG_SSL_CA)
+    }
+    
+    # Test each component
+    # 1. Test Embedder
+    embedder_status = {"available": False, "error": None}
+    try:
+        get_embedder()
+        embedder_status["available"] = True
+    except Exception as e:
+        embedder_status["error"] = str(e)
+    diagnosis["components"]["embedder"] = embedder_status
+    
+    # 2. Test LLM
+    llm_status = {"available": False, "error": None}
+    try:
+        agent = get_llm_agent()
+        llm_status["available"] = True
+    except Exception as e:
+        llm_status["error"] = str(e)
+    diagnosis["components"]["llm"] = llm_status
+    
+    # 3. Test Database
+    db_status = {"available": False, "error": None, "table_count": 0}
+    try:
+        db = get_rag_db()
+        db.ping()
+        db_status["available"] = True
+        
+        # Check tables
+        cursor = db.cursor()
+        cursor.execute(f"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = '{RAG_DB_NAME}'")
+        result = cursor.fetchone()
+        db_status["table_count"] = result[0] if result else 0
+        
+        # Check documents table
+        try:
+            cursor.execute(f"SELECT COUNT(*) FROM {RAG_DB_NAME}.documents")
+            doc_count = cursor.fetchone()[0]
+            db_status["document_count"] = doc_count
+        except:
+            db_status["document_count"] = "unknown (table may not exist)"
+        
+        cursor.close()
+    except Exception as e:
+        db_status["error"] = str(e)
+    diagnosis["components"]["database"] = db_status
+    
+    return jsonify(diagnosis), 200
 
 
 @chatbot_bp.route('/search', methods=['POST'])
