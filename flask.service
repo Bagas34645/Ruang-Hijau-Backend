@@ -1,0 +1,33 @@
+[Unit]
+Description=Flask API - Ruang Hijau Backend with RAG Chatbot
+After=network.target
+
+[Service]
+Type=notify
+User=ubuntu
+WorkingDirectory=/home/ubuntu/Ruang-Hijau-Backend
+Environment="PATH=/home/ubuntu/Ruang-Hijau-Backend/venv/bin"
+ExecStart=/home/ubuntu/Ruang-Hijau-Backend/venv/bin/gunicorn \
+    app:app \
+    --bind 0.0.0.0:8000 \
+    --timeout 120 \
+    --workers 2 \
+    --worker-class sync \
+    --access-logfile logs/access.log \
+    --error-logfile logs/error.log \
+    --log-level info
+
+# Restart policy
+Restart=always
+RestartSec=10
+
+# Process management
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=flask
+
+# Security
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
