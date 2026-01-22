@@ -33,9 +33,11 @@ from routes.campaign_routes import campaign_bp
 from routes.donation_routes import donation_bp
 from routes.volunteer_routes import volunteer_bp
 from routes.chatbot_routes import chatbot_bp
+from routes.google_auth_routes import google_auth_bp
 
 # Register Blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
+app.register_blueprint(google_auth_bp, url_prefix='/api/auth')
 app.register_blueprint(post_bp, url_prefix='/api/posts')
 app.register_blueprint(comment_bp, url_prefix='/api/comments')
 app.register_blueprint(event_bp, url_prefix='/api/events')
