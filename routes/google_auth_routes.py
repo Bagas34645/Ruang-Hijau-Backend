@@ -13,7 +13,7 @@ google_auth_bp = Blueprint("google_auth", __name__)
 
 # Google OAuth Configuration
 GOOGLE_CLIENT_ID_WEB = os.getenv('GOOGLE_CLIENT_ID_WEB', '186851201326-40k8450mphcd602pq9v4iuvo2tpbb87i.apps.googleusercontent.com')
-GOOGLE_CLIENT_ID_FLUTTER = os.getenv('GOOGLE_CLIENT_ID_FLUTTER', '186851201326-j1uo9ctso5hev13t3o4bgrgf1n3cg10q.apps.googleusercontent.com')
+GOOGLE_CLIENT_ID_FLUTTER = os.getenv('GOOGLE_CLIENT_ID_FLUTTER', '186851201326-m10i9qcf8dsg6i684ll5l9rj1j9l4950.apps.googleusercontent.com')
 
 
 def verify_google_token(id_token):

@@ -19,7 +19,7 @@ def get_db():
         connection = mysql.connector.connect(
             host=os.getenv('DB_HOST', 'localhost'),
             user=os.getenv('DB_USER', 'root'),
-            password=os.getenv('DB_PASSWORD', ''),
+            password=os.getenv('DB_PASSWORD', 'root'),
             database=os.getenv('DB_NAME', 'ruang_hijau'),
             autocommit=False,
             raise_on_warnings=False
