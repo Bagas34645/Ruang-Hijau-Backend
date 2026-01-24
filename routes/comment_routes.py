@@ -3,6 +3,17 @@ from db import get_db
 
 comment_bp = Blueprint("comment", __name__)
 
+def _serialize_comment_row(row: dict) -> dict:
+    """Ensure JSON-safe values (e.g., datetime -> string)."""
+    if not row:
+        return row
+    out = dict(row)
+    for k in ("created_at", "updated_at"):
+        v = out.get(k)
+        if hasattr(v, "isoformat"):
+            out[k] = v.isoformat(sep=" ", timespec="seconds")
+    return out
+
 
 # GET COMMENTS FOR A POST
 @comment_bp.route("/<int:post_id>", methods=["GET"])
@@ -42,6 +53,7 @@ def get_comments(post_id):
         """, (post_id, limit, offset))
         
         comments = cursor.fetchall()
+        comments = [_serialize_comment_row(c) for c in comments]
         cursor.close()
         db.close()
         
@@ -111,13 +123,26 @@ def add_comment():
         
         db.commit()
         comment_id = cursor.lastrowid
+        
+        # Fetch the created comment with user info (useful for clients)
+        cursor.close()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("""
+            SELECT c.id, c.post_id, c.user_id, u.name as author_name, u.profile_photo,
+                   c.text, c.created_at
+            FROM comments c
+            JOIN users u ON c.user_id = u.id
+            WHERE c.id = %s
+        """, (comment_id,))
+        created = cursor.fetchone()
         cursor.close()
         db.close()
-        
+
         return jsonify({
             "status": "success",
             "message": "Comment created successfully",
-            "comment_id": comment_id
+            "comment_id": comment_id,
+            "data": _serialize_comment_row(created) if created else None
         }), 201
     
     except Exception as e:
@@ -143,10 +168,21 @@ def update_comment(comment_id):
         db = get_db()
         cursor = db.cursor()
         
-        cursor.execute("""
-            UPDATE comments SET text = %s, updated_at = NOW()
-            WHERE id = %s
-        """, (data['text'], comment_id))
+        # Backward compatible: some DB schemas may not have updated_at column
+        try:
+            cursor.execute("""
+                UPDATE comments SET text = %s, updated_at = NOW()
+                WHERE id = %s
+            """, (data['text'], comment_id))
+        except Exception as inner:
+            msg = str(inner)
+            if "Unknown column" in msg and "updated_at" in msg:
+                cursor.execute("""
+                    UPDATE comments SET text = %s
+                    WHERE id = %s
+                """, (data['text'], comment_id))
+            else:
+                raise
         
         if cursor.rowcount == 0:
             return jsonify({
