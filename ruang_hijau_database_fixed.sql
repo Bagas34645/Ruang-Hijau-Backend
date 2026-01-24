@@ -65,28 +65,6 @@ CREATE TABLE comments (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
--- TABLE: EVENTS
--- ============================================================================
-DROP TABLE IF EXISTS events;
-CREATE TABLE events (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(200) NOT NULL,
-  description TEXT,
-  date DATETIME NOT NULL,
-  location VARCHAR(255),
-  image VARCHAR(255),
-  organizer_id INT,
-  event_status ENUM('upcoming', 'ongoing', 'completed', 'cancelled') DEFAULT 'upcoming',
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (organizer_id) REFERENCES users(id) ON DELETE SET NULL,
-  INDEX idx_organizer_id (organizer_id),
-  INDEX idx_date (date),
-  INDEX idx_status (event_status),
-  INDEX idx_created_at (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================================================
 -- TABLE: CAMPAIGNS
 -- ============================================================================
 DROP TABLE IF EXISTS campaigns;
@@ -201,67 +179,86 @@ CREATE TABLE likes (
 
 -- Sample Users (without passwords - passwords must be hashed using create_admin.py)
 -- NOTE: Run create_admin.py script to create admin user with hashed password
-INSERT INTO users (name, email, phone, bio, role) VALUES
-('Bagas Pratama', 'bagas@example.com', '081234567891', 'Pencinta lingkungan dan relawan sosial', 'user'),
-('Siti Nurhaliza', 'siti@example.com', '081234567892', 'Aktivis keberlanjutan lingkungan', 'user'),
-('Budi Santoso', 'budi@example.com', '081234567893', 'Relawan pendidikan', 'user'),
-('Maya Wijaya', 'maya@example.com', '081234567894', 'Pendonor tetap', 'user');
+-- INSERT INTO users (name, email, phone, bio, role) VALUES
+-- ('Bagas Pratama', 'bagas@example.com', '081234567891', 'Pencinta lingkungan dan relawan sosial', 'user'),
+-- ('Siti Nurhaliza', 'siti@example.com', '081234567892', 'Aktivis keberlanjutan lingkungan', 'user'),
+-- ('Budi Santoso', 'budi@example.com', '081234567893', 'Relawan pendidikan', 'user'),
+-- ('Maya Wijaya', 'maya@example.com', '081234567894', 'Pendonor tetap', 'user');
 
 -- Sample Campaigns
-INSERT INTO campaigns (title, description, target_amount, category, location, contact, duration_days, need_volunteers, creator_id) VALUES
-('Penanaman Pohon di Taman Kota', 'Proyek penanaman 1000 pohon untuk memperbaiki udara di kawasan perkotaan', 50000000, 'Lingkungan', 'Jakarta, Indonesia', '081234567890', 90, TRUE, 1),
-('Beasiswa untuk Anak Kurang Mampu', 'Kumpulkan dana untuk memberikan beasiswa kepada 50 anak kurang mampu', 200000000, 'Pendidikan', 'Bandung, Indonesia', '082345678901', 180, TRUE, 2),
-('Program Vaksinasi Gratis', 'Vaksinasi gratis untuk masyarakat yang tidak mampu', 150000000, 'Kesehatan', 'Surabaya, Indonesia', '083456789012', 60, TRUE, 1),
-('Pembersihan Pantai', 'Bersihkan pantai dari sampah plastik dan limbah', 30000000, 'Lingkungan', 'Bali, Indonesia', '084567890123', 30, TRUE, 3),
-('Perpustakaan Digital untuk Desa', 'Bangun perpustakaan digital di daerah terpencil', 100000000, 'Pendidikan', 'Yogyakarta, Indonesia', '085678901234', 120, FALSE, 2);
+-- INSERT INTO campaigns (title, description, target_amount, category, location, contact, duration_days, need_volunteers, creator_id) VALUES
+-- ('Penanaman Pohon di Taman Kota', 'Proyek penanaman 1000 pohon untuk memperbaiki udara di kawasan perkotaan', 50000000, 'Lingkungan', 'Jakarta, Indonesia', '081234567890', 90, TRUE, 1),
+-- ('Beasiswa untuk Anak Kurang Mampu', 'Kumpulkan dana untuk memberikan beasiswa kepada 50 anak kurang mampu', 200000000, 'Pendidikan', 'Bandung, Indonesia', '082345678901', 180, TRUE, 2),
+-- ('Program Vaksinasi Gratis', 'Vaksinasi gratis untuk masyarakat yang tidak mampu', 150000000, 'Kesehatan', 'Surabaya, Indonesia', '083456789012', 60, TRUE, 1),
+-- ('Pembersihan Pantai', 'Bersihkan pantai dari sampah plastik dan limbah', 30000000, 'Lingkungan', 'Bali, Indonesia', '084567890123', 30, TRUE, 3),
+-- ('Perpustakaan Digital untuk Desa', 'Bangun perpustakaan digital di daerah terpencil', 100000000, 'Pendidikan', 'Yogyakarta, Indonesia', '085678901234', 120, FALSE, 2);
 
 -- Sample Donations
-INSERT INTO donations (campaign_id, donor_id, amount, is_anonymous, payment_method, donation_status) VALUES
-(1, 1, 5000000, FALSE, 'transfer_bank', 'completed'),
-(1, 4, 2500000, FALSE, 'e_wallet', 'completed'),
-(1, NULL, 1000000, TRUE, 'transfer_bank', 'completed'),
-(2, 2, 10000000, FALSE, 'transfer_bank', 'completed'),
-(2, 3, 7500000, FALSE, 'qris', 'completed'),
-(3, 1, 15000000, FALSE, 'transfer_bank', 'completed'),
-(4, 4, 3000000, FALSE, 'e_wallet', 'completed'),
-(5, 2, 5000000, FALSE, 'transfer_bank', 'completed');
+-- INSERT INTO donations (campaign_id, donor_id, amount, is_anonymous, payment_method, donation_status) VALUES
+-- (1, 1, 5000000, FALSE, 'transfer_bank', 'completed'),
+-- (1, 4, 2500000, FALSE, 'e_wallet', 'completed'),
+-- (1, NULL, 1000000, TRUE, 'transfer_bank', 'completed'),
+-- (2, 2, 10000000, FALSE, 'transfer_bank', 'completed'),
+-- (2, 3, 7500000, FALSE, 'qris', 'completed'),
+-- (3, 1, 15000000, FALSE, 'transfer_bank', 'completed'),
+-- (4, 4, 3000000, FALSE, 'e_wallet', 'completed'),
+-- (5, 2, 5000000, FALSE, 'transfer_bank', 'completed');
 
 -- Sample Volunteers
-INSERT INTO volunteers (campaign_id, user_id, volunteer_status) VALUES
-(1, 2, 'accepted'),
-(1, 3, 'applied'),
-(2, 1, 'accepted'),
-(3, 3, 'accepted'),
-(4, 4, 'completed'),
-(4, 1, 'accepted'),
-(5, 2, 'applied');
+-- INSERT INTO volunteers (campaign_id, user_id, volunteer_status) VALUES
+-- (1, 2, 'accepted'),
+-- (1, 3, 'applied'),
+-- (2, 1, 'accepted'),
+-- (3, 3, 'accepted'),
+-- (4, 4, 'completed'),
+-- (4, 1, 'accepted'),
+-- (5, 2, 'applied');
 
 -- Sample Posts
-INSERT INTO posts (user_id, text, likes) VALUES
-(1, 'Hari ini kami mulai penanaman pohon pertama di proyek "Penanaman Pohon di Taman Kota"! 🌱', 25),
-(2, 'Terima kasih kepada semua yang telah berdonasi untuk "Beasiswa untuk Anak Kurang Mampu". Semoga berkah! ❤️', 18),
-(3, 'Bergabunglah dengan kami untuk membersihkan pantai minggu depan!', 12),
-(4, 'Sudah saatnya kita peduli lingkungan. Mari bersama-sama membuat perbedaan! 🌍', 34);
+-- INSERT INTO posts (user_id, text, likes) VALUES
+-- (1, 'Hari ini kami mulai penanaman pohon pertama di proyek "Penanaman Pohon di Taman Kota"! 🌱', 25),
+-- (2, 'Terima kasih kepada semua yang telah berdonasi untuk "Beasiswa untuk Anak Kurang Mampu". Semoga berkah! ❤️', 18),
+-- (3, 'Bergabunglah dengan kami untuk membersihkan pantai minggu depan!', 12),
+-- (4, 'Sudah saatnya kita peduli lingkungan. Mari bersama-sama membuat perbedaan! 🌍', 34);
 
 -- Sample Comments
-INSERT INTO comments (post_id, user_id, text) VALUES
-(1, 2, 'Bagus sekali inisiatifnya! Saya ingin turut serta.'),
-(1, 3, 'Kapan bisa bergabung? Saya tertarik.'),
-(2, 1, 'Luar biasa! Semoga banyak anak yang terbantu.'),
-(4, 2, 'Saya setuju! Mari kita jaga bumi ini bersama-sama.');
+-- INSERT INTO comments (post_id, user_id, text) VALUES
+-- (1, 2, 'Bagus sekali inisiatifnya! Saya ingin turut serta.'),
+-- (1, 3, 'Kapan bisa bergabung? Saya tertarik.'),
+-- (2, 1, 'Luar biasa! Semoga banyak anak yang terbantu.'),
+-- (4, 2, 'Saya setuju! Mari kita jaga bumi ini bersama-sama.');
 
 -- Sample Notifications
-INSERT INTO notifications (user_id, title, message, notification_type, related_id, related_type) VALUES
-(1, 'Donasi Diterima', 'Terima kasih! Donasi Anda sebesar Rp 5.000.000 telah diterima untuk kampanye "Penanaman Pohon"', 'donation', 1, 'campaign'),
-(2, 'Volunteer Diterima', 'Selamat! Aplikasi Anda sebagai relawan untuk kampanye "Beasiswa untuk Anak Kurang Mampu" telah diterima.', 'volunteer', 2, 'campaign'),
-(3, 'Komentar Baru', 'Bagas Pratama mengomentari postingan Anda', 'comment', 1, 'post');
+-- INSERT INTO notifications (user_id, title, message, notification_type, related_id, related_type) VALUES
+-- (1, 'Donasi Diterima', 'Terima kasih! Donasi Anda sebesar Rp 5.000.000 telah diterima untuk kampanye "Penanaman Pohon"', 'donation', 1, 'campaign'),
+-- (2, 'Volunteer Diterima', 'Selamat! Aplikasi Anda sebagai relawan untuk kampanye "Beasiswa untuk Anak Kurang Mampu" telah diterima.', 'volunteer', 2, 'campaign'),
+-- (3, 'Komentar Baru', 'Bagas Pratama mengomentari postingan Anda', 'comment', 1, 'post');
 
 -- Sample Likes
-INSERT INTO likes (post_id, user_id) VALUES
-(1, 1), (1, 2), (1, 3), (1, 4),
-(2, 1), (2, 3), (2, 4),
-(3, 1), (3, 3),
-(4, 1), (4, 2), (4, 3), (4, 4);
+-- INSERT INTO likes (post_id, user_id) VALUES
+-- (1, 1), (1, 2), (1, 3), (1, 4),
+-- (2, 1), (2, 3), (2, 4),
+-- (3, 1), (3, 3),
+-- (4, 1), (4, 2), (4, 3), (4, 4);
+
+-- ============================================================================
+-- TABLE: FEEDBACK
+-- ============================================================================
+DROP TABLE IF EXISTS feedback;
+CREATE TABLE feedback (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  message TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_user_id (user_id),
+  INDEX idx_category (category),
+  INDEX idx_rating (rating),
+  INDEX idx_created_at (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================================================
 -- CREATE INDEXES FOR PERFORMANCE

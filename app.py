@@ -40,6 +40,7 @@ from routes.volunteer_routes import volunteer_bp
 from routes.chatbot_routes import chatbot_bp
 from routes.google_auth_routes import google_auth_bp
 from routes.admin_routes import admin_bp
+from routes.feedback_routes import feedback_bp
 
 # Register Blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -51,6 +52,7 @@ app.register_blueprint(donation_bp, url_prefix='/api/donations')
 app.register_blueprint(volunteer_bp, url_prefix='/api/volunteers')
 app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
 app.register_blueprint(admin_bp, url_prefix='/admin')
+app.register_blueprint(feedback_bp, url_prefix='/api/feedback')
 
 
 @app.route('/uploads/<path:filename>')
@@ -96,7 +98,8 @@ def api_index():
             "campaigns": "/api/campaigns",
             "donations": "/api/donations",
             "volunteers": "/api/volunteers",
-            "chatbot": "/api/chatbot"
+            "chatbot": "/api/chatbot",
+            "feedback": "/api/feedback"
         }
     }), 200
 
