@@ -32,7 +32,7 @@ def get_campaign_volunteers(campaign_id):
         params = [campaign_id]
         
         if status_filter:
-            where_clause += " AND v.status = %s"
+            where_clause += " AND v.volunteer_status = %s"
             params.append(status_filter)
         
         # Get total count
@@ -45,11 +45,11 @@ def get_campaign_volunteers(campaign_id):
         # Get volunteers with user info
         cursor.execute(f"""
             SELECT v.id, v.campaign_id, v.user_id, u.name, u.profile_photo, u.phone, u.email,
-                   v.status, v.applied_at, v.responded_at
+                   v.volunteer_status as status, v.created_at as applied_at, v.updated_at as responded_at
             FROM volunteers v
             JOIN users u ON v.user_id = u.id
             {where_clause}
-            ORDER BY v.applied_at DESC
+            ORDER BY v.created_at DESC
             LIMIT %s OFFSET %s
         """, params)
         
@@ -130,8 +130,8 @@ def apply_volunteer():
         
         # Insert volunteer application
         cursor.execute("""
-            INSERT INTO volunteers (campaign_id, user_id, status)
-            VALUES (%s, %s, 'pending')
+            INSERT INTO volunteers (campaign_id, user_id, volunteer_status)
+            VALUES (%s, %s, 'applied')
         """, (campaign_id, user_id))
         
         volunteer_id = cursor.lastrowid
@@ -198,7 +198,7 @@ def accept_volunteer(volunteer_id):
         
         # Update volunteer status
         cursor.execute("""
-            UPDATE volunteers SET status = 'approved', responded_at = NOW()
+            UPDATE volunteers SET volunteer_status = 'accepted', updated_at = NOW()
             WHERE id = %s
         """, (volunteer_id,))
         
@@ -242,7 +242,7 @@ def reject_volunteer(volunteer_id):
         
         # Verify volunteer application exists
         cursor.execute("""
-            SELECT user_id, campaign_id FROM volunteers WHERE id = %s AND status = 'pending'
+            SELECT user_id, campaign_id FROM volunteers WHERE id = %s AND volunteer_status = 'applied'
         """, (volunteer_id,))
         
         volunteer = cursor.fetchone()
@@ -251,7 +251,7 @@ def reject_volunteer(volunteer_id):
             db.close()
             return jsonify({
                 "status": "error",
-                "message": "Volunteer application not found or not in pending status"
+                "message": "Volunteer application not found or not in applied status"
             }), 404
         
         user_id = volunteer[0]
@@ -259,7 +259,7 @@ def reject_volunteer(volunteer_id):
         
         # Update volunteer status
         cursor.execute("""
-            UPDATE volunteers SET status = 'rejected', responded_at = NOW()
+            UPDATE volunteers SET volunteer_status = 'rejected', updated_at = NOW()
             WHERE id = %s
         """, (volunteer_id,))
         
@@ -314,11 +314,11 @@ def get_pending_applications(campaign_id):
         # Get pending applications
         cursor.execute("""
             SELECT v.id, v.campaign_id, v.user_id, u.name, u.profile_photo, u.phone, u.email,
-                   v.status, v.applied_at
+                   v.volunteer_status as status, v.created_at as applied_at
             FROM volunteers v
             JOIN users u ON v.user_id = u.id
-            WHERE v.campaign_id = %s AND v.status = 'pending'
-            ORDER BY v.applied_at ASC
+            WHERE v.campaign_id = %s AND v.volunteer_status = 'applied'
+            ORDER BY v.created_at ASC
         """, (campaign_id,))
         
         applications = cursor.fetchall()
@@ -366,7 +366,7 @@ def get_user_volunteers(user_id):
         params = [user_id]
         
         if status_filter:
-            where_clause += " AND v.status = %s"
+            where_clause += " AND v.volunteer_status = %s"
             params.append(status_filter)
         
         # Get total count
@@ -379,11 +379,11 @@ def get_user_volunteers(user_id):
         # Get volunteer applications
         cursor.execute(f"""
             SELECT v.id, v.campaign_id, c.title as campaign_title, c.location,
-                   v.status, v.applied_at, v.responded_at
+                   v.volunteer_status as status, v.created_at as applied_at, v.updated_at as responded_at
             FROM volunteers v
             JOIN campaigns c ON v.campaign_id = c.id
             {where_clause}
-            ORDER BY v.applied_at DESC
+            ORDER BY v.created_at DESC
             LIMIT %s OFFSET %s
         """, params)
         

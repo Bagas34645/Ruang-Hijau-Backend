@@ -87,8 +87,8 @@ def create_donation():
         
         # Insert donation
         cursor.execute("""
-            INSERT INTO donations (campaign_id, donor_id, amount, payment_method, transaction_id, is_anonymous, status)
-            VALUES (%s, %s, %s, %s, %s, %s, 'success')
+            INSERT INTO donations (campaign_id, donor_id, amount, payment_method, transaction_id, is_anonymous, donation_status)
+            VALUES (%s, %s, %s, %s, %s, %s, 'completed')
         """, (campaign_id, donor_id, amount, payment_method, transaction_id, is_anonymous))
         
         donation_id = cursor.lastrowid
@@ -167,7 +167,7 @@ def get_campaign_donations(campaign_id):
         cursor.execute("""
             SELECT d.id, d.campaign_id, d.donor_id, 
                    CASE WHEN d.is_anonymous THEN 'Anonymous' ELSE u.name END as donor_name,
-                   d.amount, d.payment_method, d.status, d.created_at
+                   d.amount, d.payment_method, d.donation_status as status, d.created_at
             FROM donations d
             LEFT JOIN users u ON d.donor_id = u.id
             WHERE d.campaign_id = %s
@@ -226,7 +226,7 @@ def get_donor_donations(donor_id):
         # Get donations with campaign info
         cursor.execute("""
             SELECT d.id, d.campaign_id, d.donor_id, c.title as campaign_title,
-                   d.amount, d.payment_method, d.status, d.created_at
+                   d.amount, d.payment_method, d.donation_status as status, d.created_at
             FROM donations d
             JOIN campaigns c ON d.campaign_id = c.id
             WHERE d.donor_id = %s
@@ -267,7 +267,7 @@ def get_donation(donation_id):
         cursor.execute("""
             SELECT d.id, d.campaign_id, c.title as campaign_title,
                    d.donor_id, CASE WHEN d.is_anonymous THEN 'Anonymous' ELSE u.name END as donor_name,
-                   d.amount, d.payment_method, d.transaction_id, d.status, d.created_at
+                   d.amount, d.payment_method, d.transaction_id, d.donation_status as status, d.created_at
             FROM donations d
             JOIN campaigns c ON d.campaign_id = c.id
             LEFT JOIN users u ON d.donor_id = u.id
@@ -312,7 +312,7 @@ def get_campaign_donation_stats(campaign_id):
                 MIN(amount) as min_amount,
                 MAX(amount) as max_amount
             FROM donations
-            WHERE campaign_id = %s
+            WHERE campaign_id = %s AND donation_status = 'completed'
         """, (campaign_id,))
         
         stats = cursor.fetchone()

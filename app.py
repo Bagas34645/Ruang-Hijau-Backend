@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, current_app, jsonify
 from flask_cors import CORS
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
 # Load environment variables
@@ -9,6 +10,11 @@ load_dotenv()
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
+
+# Session configuration
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production-2025')
+app.config['SESSION_PERMANENT'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=24)
 
 # Enable CORS with credentials
 # Enable CORS with credentials
@@ -26,7 +32,6 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Import routes
 from routes.auth_routes import auth_bp
-from routes.event_routes import event_bp
 from routes.post_routes import post_bp
 from routes.comment_routes import comment_bp
 from routes.campaign_routes import campaign_bp
@@ -34,17 +39,18 @@ from routes.donation_routes import donation_bp
 from routes.volunteer_routes import volunteer_bp
 from routes.chatbot_routes import chatbot_bp
 from routes.google_auth_routes import google_auth_bp
+from routes.admin_routes import admin_bp
 
 # Register Blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(google_auth_bp, url_prefix='/api/auth')
 app.register_blueprint(post_bp, url_prefix='/api/posts')
 app.register_blueprint(comment_bp, url_prefix='/api/comments')
-app.register_blueprint(event_bp, url_prefix='/api/events')
 app.register_blueprint(campaign_bp, url_prefix='/api/campaigns')
 app.register_blueprint(donation_bp, url_prefix='/api/donations')
 app.register_blueprint(volunteer_bp, url_prefix='/api/volunteers')
 app.register_blueprint(chatbot_bp, url_prefix='/api/chatbot')
+app.register_blueprint(admin_bp, url_prefix='/admin')
 
 
 @app.route('/uploads/<path:filename>')
@@ -87,7 +93,6 @@ def api_index():
             "auth": "/api/auth",
             "posts": "/api/posts",
             "comments": "/api/comments",
-            "events": "/api/events",
             "campaigns": "/api/campaigns",
             "donations": "/api/donations",
             "volunteers": "/api/volunteers",

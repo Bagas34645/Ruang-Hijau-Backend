@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - RuangHijau Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <svg width="40" height="40" viewBox="0 0 60 60" fill="none">
+                    <circle cx="30" cy="30" r="25" fill="#22c55e" opacity="0.2"/>
+                    <path d="M30 15 L35 25 L45 27 L37 35 L38 45 L30 40 L22 45 L23 35 L15 27 L25 25 Z" fill="#22c55e"/>
+                </svg>
+                <h2>RuangHijau</h2>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="#dashboard" class="nav-item active" data-section="dashboard">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" fill="currentColor"/>
+                </svg>
+                <span>Dashboard</span>
+            </a>
+            <a href="#users" class="nav-item" data-section="users">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0115 16v1h1.5a.5.5 0 01.5.5v.5H12.93zM11 16a3 3 0 11-6 0 3 3 0 016 0z" fill="currentColor"/>
+                </svg>
+                <span>Pengguna</span>
+            </a>
+            <a href="#posts" class="nav-item" data-section="posts">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" fill="currentColor"/>
+                    <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" fill="currentColor"/>
+                </svg>
+                <span>Postingan</span>
+            </a>
+            <a href="#campaigns" class="nav-item" data-section="campaigns">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" fill="currentColor"/>
+                    <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" fill="currentColor"/>
+                </svg>
+                <span>Kampanye</span>
+            </a>
+            <a href="#donations" class="nav-item" data-section="donations">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" fill="currentColor"/>
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" fill="currentColor"/>
+                </svg>
+                <span>Donasi</span>
+            </a>
+            <a href="#comments" class="nav-item" data-section="comments">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H8l-4 3v-3H4a2 2 0 01-2-2V5z" fill="currentColor"/>
+                </svg>
+                <span>Komentar</span>
+            </a>
+            <a href="#volunteers" class="nav-item" data-section="volunteers">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 2a4 4 0 110 8 4 4 0 010-8z" fill="currentColor"/>
+                    <path d="M3 18a7 7 0 0114 0H3z" fill="currentColor"/>
+                </svg>
+                <span>Relawan</span>
+            </a>
+            <a href="#notifications" class="nav-item" data-section="notifications">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" fill="currentColor"/>
+                </svg>
+                <span>Notifikasi</span>
+            </a>
+            <a href="#likes" class="nav-item" data-section="likes">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M2 10a3 3 0 013-3h2l1-3a2 2 0 013.8.6L11 7h4a2 2 0 011.9 2.6l-1.5 5A2 2 0 0113.5 16H7a2 2 0 01-2-2v-1H5a3 3 0 01-3-3z" fill="currentColor"/>
+                </svg>
+                <span>Likes</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <span id="userInitial">A</span>
+                </div>
+                <div class="user-details">
+                    <p class="user-name" id="userName">Admin</p>
+                    <p class="user-email" id="userEmail">admin@ruanghijau.com</p>
+                </div>
+            </div>
+            <button class="btn-logout" id="logoutBtn">
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                    <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4.414l-4.293 4.293a1 1 0 01-1.414 0L5 7.414V15h10V7.414zM5 5v.586l3.293 3.293L11.586 5H5z" fill="currentColor"/>
+                </svg>
+                Keluar
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="top-header">
+            <button class="menu-toggle" id="menuToggle">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+            <h1 class="page-title" id="pageTitle">Dashboard</h1>
+            <div class="header-actions">
+                <div class="notifications">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" fill="currentColor"/>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="content-section active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon users">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0115 16v1h1.5a.5.5 0 01.5.5v.5H12.93zM11 16a3 3 0 11-6 0 3 3 0 016 0z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalUsers">0</h3>
+                        <p>Total Pengguna</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon posts">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" fill="currentColor"/>
+                            <path fill-rule="evenodd" d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalPosts">0</h3>
+                        <p>Total Postingan</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon campaigns">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" fill="currentColor"/>
+                            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalCampaigns">0</h3>
+                        <p>Total Kampanye</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon donations">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z" fill="currentColor"/>
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalDonations">Rp 0</h3>
+                        <p>Total Donasi</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon comments">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v7a2 2 0 01-2 2H8l-4 3v-3H4a2 2 0 01-2-2V5z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalComments">0</h3>
+                        <p>Total Komentar</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon volunteers">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 2a4 4 0 110 8 4 4 0 010-8z" fill="currentColor"/>
+                            <path d="M3 18a7 7 0 0114 0H3z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalVolunteers">0</h3>
+                        <p>Total Relawan</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon notifications">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="unreadNotifications">0</h3>
+                        <p>Notifikasi Belum Dibaca</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3>Aktivitas Terbaru</h3>
+                    <div id="recentActivity" class="activity-list">
+                        <p class="loading">Memuat data...</p>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card">
+                    <h3>Statistik Bulanan</h3>
+                    <div id="monthlyStats" class="monthly-stats">
+                        <p class="loading">Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Users Section -->
+        <section id="users-section" class="content-section">
+            <div class="section-header">
+                <h2>Manajemen Pengguna</h2>
+                <div class="section-actions">
+                    <input type="text" id="userSearch" class="search-input" placeholder="Cari pengguna...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Tanggal Daftar</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr><td colspan="6" class="loading">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Posts Section -->
+        <section id="posts-section" class="content-section">
+            <div class="section-header">
+                <h2>Manajemen Postingan</h2>
+                <div class="section-actions">
+                    <input type="text" id="postSearch" class="search-input" placeholder="Cari postingan...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Penulis</th>
+                            <th>Konten</th>
+                            <th>Likes</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="postsTableBody">
+                        <tr><td colspan="6" class="loading">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Campaigns Section -->
+        <section id="campaigns-section" class="content-section">
+            <div class="section-header">
+                <h2>Manajemen Kampanye</h2>
+                <div class="section-actions">
+                    <input type="text" id="campaignSearch" class="search-input" placeholder="Cari kampanye...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Judul</th>
+                            <th>Kategori</th>
+                            <th>Target</th>
+                            <th>Terkumpul</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="campaignsTableBody">
+                        <tr><td colspan="7" class="loading">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Donations Section -->
+        <section id="donations-section" class="content-section">
+            <div class="section-header">
+                <h2>Manajemen Donasi</h2>
+                <div class="section-actions">
+                    <input type="text" id="donationSearch" class="search-input" placeholder="Cari donasi...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Donatur</th>
+                            <th>Kampanye</th>
+                            <th>Jumlah</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="donationsTableBody">
+                        <tr><td colspan="7" class="loading">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Comments Section -->
+        <section id="comments-section" class="content-section">
+            <div class="section-header">
+                <h2>Manajemen Komentar</h2>
+                <div class="section-actions">
+                    <input type="text" id="commentSearch" class="search-input" placeholder="Cari komentar...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Post ID</th>
+                            <th>Pengguna</th>
+                            <th>Komentar</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="commentsTableBody">
+                        <tr><td colspan="6" class="loading">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Volunteers Section -->
+        <section id="volunteers-section" class="content-section">
+            <div class="section-header">
+                <h2>Manajemen Relawan</h2>
+                <div class="section-actions">
+                    <input type="text" id="volunteerSearch" class="search-input" placeholder="Cari relawan...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Kampanye</th>
+                            <th>Pengguna</th>
+                            <th>Status</th>
+                            <th>Jam</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="volunteersTableBody">
+                        <tr><td colspan="7" class="loading">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Notifications Section -->
+        <section id="notifications-section" class="content-section">
+            <div class="section-header">
+                <h2>Manajemen Notifikasi</h2>
+                <div class="section-actions">
+                    <input type="text" id="notificationSearch" class="search-input" placeholder="Cari notifikasi...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Pengguna</th>
+                            <th>Judul</th>
+                            <th>Tipe</th>
+                            <th>Status</th>
+                            <th>Tanggal</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="notificationsTableBody">
+                        <tr><td colspan="7" class="loading">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Likes Section -->
+        <section id="likes-section" class="content-section">
+            <div class="section-header">
+                <h2>Analitik Likes</h2>
+                <div class="section-actions">
+                    <input type="text" id="likeSearch" class="search-input" placeholder="Cari postingan...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Post ID</th>
+                            <th>Penulis</th>
+                            <th>Konten</th>
+                            <th>Likes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="likesTableBody">
+                        <tr><td colspan="4" class="loading">Memuat data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+</body>
+</html>
