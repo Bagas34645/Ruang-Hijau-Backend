@@ -5,18 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - RuangHijau Admin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        /* Style tambahan untuk logo - TIDAK GOYANG */
+        .logo-container {
+            width: auto;
+            height: auto;
+            margin: 0 auto 8px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .logo-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .logo-content img {
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+        }
+    </style>
 </head>
 <body class="login-page">
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
                 <div class="logo">
-                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="30" cy="30" r="25" fill="#22c55e" opacity="0.2"/>
-                        <path d="M30 15 L35 25 L45 27 L37 35 L38 45 L30 40 L22 45 L23 35 L15 27 L25 25 Z" fill="#22c55e"/>
-                    </svg>
+                    <div class="logo-container">
+                        <div class="logo-content">
+                            <!-- Logo Icon -->
+                            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="RuangHijau Logo" style="width: 120px; height: 120px; object-fit: contain;">
+                        </div>
+                    </div>
                 </div>
-                <h1>RuangHijau</h1>
+                <!-- Logo Tulisan RuangHijau -->
+                <img src="{{ url_for('static', filename='images/logo-text.png') }}" alt="RuangHijau" style="max-width: 180px; height: auto; margin-bottom: 12px;">
                 <p>Admin Panel</p>
             </div>
             

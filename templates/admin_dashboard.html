@@ -5,17 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - RuangHijau Admin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <style>
+        /* Style untuk logo di sidebar */
+        .sidebar-header .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-header .logo img {
+            height: 65px;
+            width: auto;
+            object-fit: contain;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="logo">
-                <svg width="40" height="40" viewBox="0 0 60 60" fill="none">
-                    <circle cx="30" cy="30" r="25" fill="#22c55e" opacity="0.2"/>
-                    <path d="M30 15 L35 25 L45 27 L37 35 L38 45 L30 40 L22 45 L23 35 L15 27 L25 25 Z" fill="#22c55e"/>
-                </svg>
-                <h2>RuangHijau</h2>
+                <!-- Logo Lengkap (Icon + Text sudah jadi satu) -->
+                <img src="{{ url_for('static', filename='images/logo-sidebar.png') }}" alt="RuangHijau">
             </div>
         </div>
         
