@@ -1,4 +1,4 @@
-from flask import Flask, send_from_directory, current_app, jsonify
+from flask import Flask, send_from_directory, current_app, jsonify, render_template
 from flask_cors import CORS
 import os
 from datetime import timedelta
@@ -109,12 +109,8 @@ def api_index():
 
 @app.route("/")
 def index():
-    """Root endpoint"""
-    return jsonify({
-        "message": "Ruang Hijau Backend API",
-        "version": "1.0",
-        "docs": "/api"
-    }), 200
+    """Root endpoint - Landing page"""
+    return render_template('index.html')
 
 
 @app.errorhandler(404)
