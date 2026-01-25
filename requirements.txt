@@ -6,3 +6,8 @@ Werkzeug>=2.3.0
 sentence-transformers>=2.2.0
 ollama>=0.1.0
 requests>=2.31.0
+
+# Waste Detection - Image Processing & ML
+Pillow>=9.0.0
+numpy>=1.21.0
+tensorflow>=2.10.0
