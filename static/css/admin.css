@@ -784,3 +784,157 @@ body {
 .mb-1 { margin-bottom: 8px; }
 .mb-2 { margin-bottom: 16px; }
 .mb-3 { margin-bottom: 24px; }
+
+/* Feedback Dashboard Styles */
+.stat-icon.feedback-total {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+}
+
+.stat-icon.feedback-rating {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.stat-icon.feedback-positive {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+}
+
+.stat-icon.feedback-negative {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* Chart Container */
+.chart-container {
+    position: relative;
+    width: 100%;
+}
+
+.chart-container canvas {
+    max-width: 100%;
+}
+
+/* NLP Summary Styles */
+.nlp-summary {
+    padding: 8px 0;
+}
+
+.nlp-health-indicator {
+    padding: 16px;
+    background: linear-gradient(135deg, var(--bg) 0%, rgba(145, 219, 79, 0.1) 100%);
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.nlp-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.nlp-stat-item {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.nlp-stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Sentiment Badges */
+.badge-sentiment-positive {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: #166534;
+    border: 1px solid #86efac;
+}
+
+.badge-sentiment-negative {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.badge-sentiment-neutral {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+/* Feedback Table Enhancements */
+#feedbackTableBody .text-truncate {
+    max-width: 200px;
+    cursor: help;
+}
+
+/* Animation for charts */
+@keyframes chartFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dashboard-card canvas {
+    animation: chartFadeIn 0.5s ease-out;
+}
+
+/* Responsive adjustments for feedback section */
+@media (max-width: 1200px) {
+    .dashboard-grid .dashboard-card[style*="grid-column: span 2"] {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .nlp-stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    #feedback-section .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    #feedback-section .section-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    #feedback-section .section-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    #feedback-section .section-actions select,
+    #feedback-section .section-actions button {
+        width: 100%;
+    }
+}
+
+/* Button Primary Style Enhancement */
+.btn-primary svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Select dropdown styling */
+select.search-input {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+}

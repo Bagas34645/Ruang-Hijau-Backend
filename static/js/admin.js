@@ -3,7 +3,7 @@
 const ADMIN_API_BASE = '/admin';
 
 // Initialize dashboard
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     checkAuth();
     initializeNavigation();
     initializeMenuToggle();
@@ -34,7 +34,7 @@ function updateUserInfo(user) {
     const userName = document.getElementById('userName');
     const userEmail = document.getElementById('userEmail');
     const userInitial = document.getElementById('userInitial');
-    
+
     if (userName) userName.textContent = user.name || 'Admin';
     if (userEmail) userEmail.textContent = user.email || '';
     if (userInitial) userInitial.textContent = (user.name || 'A').charAt(0).toUpperCase();
@@ -44,7 +44,7 @@ function updateUserInfo(user) {
 function initializeNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             e.preventDefault();
             const section = this.getAttribute('data-section');
             switchSection(section);
@@ -70,7 +70,7 @@ function switchSection(section) {
     const targetSection = document.getElementById(`${section}-section`);
     if (targetSection) {
         targetSection.classList.add('active');
-        
+
         // Update page title
         const titles = {
             'dashboard': 'Dashboard',
@@ -81,10 +81,11 @@ function switchSection(section) {
             'comments': 'Manajemen Komentar',
             'volunteers': 'Manajemen Relawan',
             'notifications': 'Manajemen Notifikasi',
-            'likes': 'Analitik Likes'
+            'likes': 'Analitik Likes',
+            'feedback': 'Kelola Feedback & Analisis Sentimen'
         };
         document.getElementById('pageTitle').textContent = titles[section] || 'Dashboard';
-        
+
         // Load section data
         loadSectionData(section);
     }
@@ -92,7 +93,7 @@ function switchSection(section) {
 
 // Load section data
 function loadSectionData(section) {
-    switch(section) {
+    switch (section) {
         case 'dashboard':
             loadDashboard();
             break;
@@ -119,6 +120,12 @@ function loadSectionData(section) {
             break;
         case 'likes':
             loadLikes();
+            break;
+        case 'feedback':
+            // Feedback is handled by feedback_dashboard.js
+            if (typeof initFeedbackDashboard === 'function') {
+                initFeedbackDashboard();
+            }
             break;
     }
 }
@@ -156,7 +163,7 @@ async function loadDashboard() {
         document.getElementById('totalUsers').textContent = usersData.count || 0;
         document.getElementById('totalPosts').textContent = postsData.count || 0;
         document.getElementById('totalCampaigns').textContent = campaignsData.count || 0;
-        
+
         const totalDonations = donationsData.total || 0;
         document.getElementById('totalDonations').textContent = formatCurrency(totalDonations);
 
@@ -169,7 +176,7 @@ async function loadDashboard() {
 
         // Load recent activity
         loadRecentActivity();
-        
+
         // Load monthly stats
         loadMonthlyStats();
     } catch (error) {
@@ -182,7 +189,7 @@ async function loadRecentActivity() {
     try {
         const response = await fetch(`${ADMIN_API_BASE}/recent-activity`);
         const data = await response.json();
-        
+
         const container = document.getElementById('recentActivity');
         if (data.activities && data.activities.length > 0) {
             container.innerHTML = data.activities.map(activity => `
@@ -210,7 +217,7 @@ async function loadMonthlyStats() {
     try {
         const response = await fetch(`${ADMIN_API_BASE}/monthly-stats`);
         const data = await response.json();
-        
+
         const container = document.getElementById('monthlyStats');
         if (data.stats) {
             container.innerHTML = Object.entries(data.stats).map(([key, value]) => `
@@ -233,7 +240,7 @@ async function loadUsers() {
     try {
         const response = await fetch(`${ADMIN_API_BASE}/users`);
         const data = await response.json();
-        
+
         const tbody = document.getElementById('usersTableBody');
         if (data.users && data.users.length > 0) {
             tbody.innerHTML = data.users.map(user => `
@@ -263,7 +270,7 @@ async function loadPosts() {
     try {
         const response = await fetch(`${ADMIN_API_BASE}/posts`);
         const data = await response.json();
-        
+
         const tbody = document.getElementById('postsTableBody');
         if (data.posts && data.posts.length > 0) {
             tbody.innerHTML = data.posts.map(post => `
@@ -293,7 +300,7 @@ async function loadCampaigns() {
     try {
         const response = await fetch(`${ADMIN_API_BASE}/campaigns`);
         const data = await response.json();
-        
+
         const tbody = document.getElementById('campaignsTableBody');
         if (data.campaigns && data.campaigns.length > 0) {
             tbody.innerHTML = data.campaigns.map(campaign => `
@@ -323,7 +330,7 @@ async function loadDonations() {
     try {
         const response = await fetch(`${ADMIN_API_BASE}/donations`);
         const data = await response.json();
-        
+
         const tbody = document.getElementById('donationsTableBody');
         if (data.donations && data.donations.length > 0) {
             tbody.innerHTML = data.donations.map(donation => `
@@ -466,9 +473,9 @@ async function loadLikes() {
 function initializeMenuToggle() {
     const menuToggle = document.getElementById('menuToggle');
     const sidebar = document.getElementById('sidebar');
-    
+
     if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
+        menuToggle.addEventListener('click', function () {
             sidebar.classList.toggle('open');
         });
     }
@@ -478,7 +485,7 @@ function initializeMenuToggle() {
 function initializeLogout() {
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', async function() {
+        logoutBtn.addEventListener('click', async function () {
             if (confirm('Apakah Anda yakin ingin keluar?')) {
                 try {
                     await fetch('/admin/logout', { method: 'POST' });
@@ -511,7 +518,7 @@ function formatTime(dateString) {
     const minutes = Math.floor(diff / 60000);
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
-    
+
     if (minutes < 1) return 'Baru saja';
     if (minutes < 60) return `${minutes} menit yang lalu`;
     if (hours < 24) return `${hours} jam yang lalu`;
@@ -582,18 +589,18 @@ function deletePost(id) {
         fetch(`${ADMIN_API_BASE}/posts/${id}`, {
             method: 'DELETE'
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                loadPosts();
-            } else {
-                alert('Gagal menghapus postingan');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Terjadi kesalahan');
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    loadPosts();
+                } else {
+                    alert('Gagal menghapus postingan');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan');
+            });
     }
 }
 

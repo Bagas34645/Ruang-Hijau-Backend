@@ -89,6 +89,12 @@
                 </svg>
                 <span>Likes</span>
             </a>
+            <a href="#feedback" class="nav-item" data-section="feedback">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zm-4 0H9v2h2V9z" fill="currentColor"/>
+                </svg>
+                <span>Kelola Feedback</span>
+            </a>
         </nav>
         
         <div class="sidebar-footer">
@@ -455,8 +461,149 @@
                 </table>
             </div>
         </section>
+
+        <!-- Feedback Management Section -->
+        <section id="feedback-section" class="content-section">
+            <div class="section-header">
+                <h2>Kelola Feedback & Analisis Sentimen</h2>
+                <div class="section-actions">
+                    <select id="feedbackTimeRange" class="search-input" style="min-width: 150px;">
+                        <option value="7">7 Hari Terakhir</option>
+                        <option value="30" selected>30 Hari Terakhir</option>
+                        <option value="90">90 Hari Terakhir</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="refreshFeedbackData()">
+                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Feedback Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon feedback-total">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalFeedback">0</h3>
+                        <p>Total Feedback</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon feedback-rating">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="avgRating">0.0</h3>
+                        <p>Rata-rata Rating</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon feedback-positive">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-.464 5.535a1 1 0 10-1.415-1.414 3 3 0 01-4.242 0 1 1 0 00-1.415 1.414 5 5 0 007.072 0z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="positivePercent">0%</h3>
+                        <p>Sentimen Positif</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon feedback-negative">
+                        <svg width="24" height="24" viewBox="0 0 20 20" fill="none">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM7 9a1 1 0 100-2 1 1 0 000 2zm7-1a1 1 0 11-2 0 1 1 0 012 0zm-5.536 6.707a1 1 0 00-1.414 0 5 5 0 017.072 0 1 1 0 11-1.414 1.414 3 3 0 00-4.244 0 1 1 0 01-1.414 0z" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="negativePercent">0%</h3>
+                        <p>Sentimen Negatif</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="dashboard-grid">
+                <!-- Sentiment Distribution Chart -->
+                <div class="dashboard-card">
+                    <h3>Distribusi Sentimen (NLP)</h3>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Rating Distribution Chart -->
+                <div class="dashboard-card">
+                    <h3>Distribusi Rating</h3>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="ratingChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Sentiment Trend Chart -->
+                <div class="dashboard-card" style="grid-column: span 2;">
+                    <h3>Trend Sentimen (30 Hari Terakhir)</h3>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="sentimentTrendChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Category Sentiment Analysis -->
+                <div class="dashboard-card">
+                    <h3>Analisis Sentimen per Kategori</h3>
+                    <div class="chart-container" style="position: relative; height: 300px;">
+                        <canvas id="categorySentimentChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Feedback Summary -->
+                <div class="dashboard-card">
+                    <h3>Ringkasan Analisis NLP</h3>
+                    <div id="nlpSummary" class="nlp-summary">
+                        <p class="loading">Memuat data analisis...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Feedback with Sentiment -->
+            <div class="dashboard-card mt-3">
+                <h3>Feedback Terbaru dengan Analisis Sentimen</h3>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Pengguna</th>
+                                <th>Kategori</th>
+                                <th>Rating</th>
+                                <th>Pesan</th>
+                                <th>Sentimen</th>
+                                <th>Skor</th>
+                                <th>Tanggal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedbackTableBody">
+                            <tr><td colspan="8" class="loading">Memuat data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
     </main>
 
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/feedback_dashboard.js') }}"></script>
 </body>
 </html>
